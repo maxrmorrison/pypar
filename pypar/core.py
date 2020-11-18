@@ -29,11 +29,11 @@ class Alignment:
     """Phoneme alignment
 
     Arguments
-        alignment : string, list[spa.Word], or dict
+        alignment : string, list[pypar.Word], or dict
             The filename, list of words, or json dict of the alignment
 
     Parameters
-        words : list[spa.Word]
+        words : list[pypar.Word]
             The words in the alignment
     """
 
@@ -48,7 +48,7 @@ class Alignment:
 
             # Require first word to start at 0 seconds
             self.update(start=0.)
-            
+
         elif isinstance(alignment, dict):
             self.words = self.parse_json(alignment)
 
@@ -59,11 +59,11 @@ class Alignment:
         """Add alignments by concatenation
 
         Arguments
-            other : spa.Alignment
+            other : pypar.Alignment
                 The alignment to compare to
 
         Returns
-            alignment : spa.Alignment
+            alignment : pypar.Alignment
                 The concatenated alignment
         """
         # Don't change original
@@ -79,7 +79,7 @@ class Alignment:
         """Equality comparison for alignments
 
         Arguments
-            other : spa.Alignment
+            other : pypar.Alignment
                 The alignment to compare to
 
         Returns
@@ -98,7 +98,7 @@ class Alignment:
                 The index of the word to retrieve
 
         Returns
-            word : spa.Word
+            word : pypar.Word
                 The word at index idx
         """
         if isinstance(idx, slice):
@@ -124,7 +124,7 @@ class Alignment:
         Arguments
             idx : int
                 The index of the word to update
-            word : spa.Word
+            word : pypar.Word
                 The new word
         """
         self.words[idx] = word
@@ -156,10 +156,10 @@ class Alignment:
                 The end time in seconds
         """
         return self.words[-1].end()
-    
+
     def find(self, words):
         """Find the words in the alignment
-        
+
         Arguments
             words : string
                 The words to find
@@ -170,37 +170,37 @@ class Alignment:
         """
         # Split at spaces
         words = words.split(' ')
-        
+
         for i in range(0, len(self.words) - len(words) + 1):
-            
+
             # Get text
             text = str(self.words[i]).lower()
-            
+
             # Skip silence
             if text == SILENCE:
                 continue
-                
+
             j, k = 0, 0
             while j < len(words):
-                
+
                 # Compare words
                 if text != words[j]:
                     break
-            
+
                 # Increment words
                 j += 1
                 k += 1
                 text = str(self.words[i + k]).lower()
-                
+
                 # skip silence
                 while text == SILENCE:
                     k += 1
                     text = str(self.words[i + k]).lower()
-                    
+
             # Found match; return indices
             if j == len(words):
                 return i, i + k
-        
+
         # No match
         return -1
 
@@ -208,7 +208,7 @@ class Alignment:
         """Retrieve the phonemes in the alignment
 
         Returns
-            phonemes : list[spa.Phoneme]
+            phonemes : list[pypar.Phoneme]
                 The phonemes in the alignment
         """
         return [phoneme for word in self for phoneme in word]
@@ -221,7 +221,7 @@ class Alignment:
                 Time in seconds
 
         Returns
-            phoneme : spa.Phoneme or None
+            phoneme : pypar.Phoneme or None
                 The phoneme at the given time
         """
         word = self.word_at_time(time)
@@ -264,7 +264,7 @@ class Alignment:
                 The index of the first word to replace
             end_idx : int
                 One past the index of the last word to replace
-            words : list[spa.Word]
+            words : list[pypar.Word]
                 The words to be inserted
         """
         # Don't change alignment start time
@@ -325,7 +325,7 @@ class Alignment:
                 Time in seconds
 
         Returns
-            word : spa.Word or None
+            word : pypar.Word or None
                 The word spoken at the specified time
         """
         for word in self:
@@ -430,23 +430,23 @@ class Alignment:
             words.append(Word(word, phonemes))
 
         return words
-    
+
     def parse_json(self, alignment):
         """Construct word list from json representation"""
         words = []
         for word in alignment['words']:
             try:
-                
+
                 # Add a word
                 phonemes = [Phoneme(*phoneme) for phoneme in word['phonemes']]
                 words.append(Word(word['alignedWord'], phonemes))
-                
+
             except KeyError:
-                
+
                 # Add a silence
                 phonemes = [Phoneme(SILENCE, word['start'], word['end'])]
                 words.append(Word(SILENCE, phonemes))
-                
+
         return words
 
     def update_word(self,
@@ -556,7 +556,7 @@ class Phoneme:
         """Equality comparison for phonemes
 
         Arguments
-            other : spa.Phoneme
+            other : pypar.Phoneme
                 The phoneme to compare to
 
         Returns
@@ -598,13 +598,13 @@ class Word:
     Arguments
         word : string
             The word
-        phonemes : list[spa.Phoneme]
+        phonemes : list[pypar.Phoneme]
             The phonemes in the word
 
     Parameters
         word : string
             The word
-        phonemes : list[spa.Phoneme]
+        phonemes : list[pypar.Phoneme]
             The phonemes in the word
     """
 
@@ -616,7 +616,7 @@ class Word:
         """Equality comparison for words
 
         Arguments
-            other : spa.Word
+            other : pypar.Word
                 The word to compare to
 
         Returns
@@ -637,7 +637,7 @@ class Word:
                 The index of the phoneme to retrieve
 
         Returns
-            phoneme : spa.Phoneme
+            phoneme : pypar.Phoneme
                 The phoneme at index idx
         """
         return self.phonemes[idx]
@@ -648,7 +648,7 @@ class Word:
         Arguments
             idx : int
                 The index of the phoneme to update
-            phoneme : spa.Phoneme
+            phoneme : pypar.Phoneme
                 The new phoneme
         """
         self.phonemes[idx] = phoneme

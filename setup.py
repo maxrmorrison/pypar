@@ -7,15 +7,16 @@ with open('README.md') as file:
 
 
 setup(
-    name='spa',
+    name='pypar',
     version='0.0.1',
-    description='Speech phoneme alignment representation',
+    description='Python phoneme alignment representation',
     author='Max Morrison',
     author_email='maxrmorrison@gmail.com',
-    url='https://git.corp.adobe.com/adobe-research/spa',
-    packages=['spa'],
+    url='https://github.com/maxrmorrison/pypar',
+    install_requires=['numpy'],
+    packages=['pypar'],
     long_description=long_description,
     long_description_content_type='text/markdown',
-    keywords='speech phoneme duration alignment',
-    license='TODO',
+    keywords=['alignment', 'duration', 'phoneme', 'speech'],
+    license='MIT',
     install_requires=['numpy'])
