@@ -22,7 +22,7 @@ def per_frame_rate(alignment_a, alignment_b, hopsize):
             The frame-wise relative speed of alignment B to alignment A
     """
     # Create dict mapping phoneme to relative rate
-    rates_per_phoneme = rate_difference_per_phoneme(alignment_a, alignment_b)
+    rates_per_phoneme = per_phoneme_rate(alignment_a, alignment_b)
     dict_keys = [phoneme_tuple(phoneme) for phoneme in alignment_a.phonemes()]
     rate_map = dict(zip(dict_keys, rates_per_phoneme))
 

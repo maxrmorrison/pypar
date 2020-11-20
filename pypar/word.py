@@ -128,8 +128,8 @@ class Word:
         # Update phonemes
         phoneme_start = start
         for phoneme, duration in zip(self.phonemes, durations):
-            phoneme.start() = phoneme_start
-            phoneme.end() = phoneme.start() + duration
+            phoneme._start = phoneme_start
+            phoneme._end = phoneme_start + duration
             phoneme_start += duration
 
     def validate(self):

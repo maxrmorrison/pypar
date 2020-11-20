@@ -344,7 +344,7 @@ class Alignment:
                 word = line.word
 
             # Add a phoneme
-            phonemes.append(Phoneme(line.phoneme, line.start, line.end))
+            phonemes.append(pypar.Phoneme(line.phoneme, line.start, line.end))
 
         # Handle last word
         if phonemes:
