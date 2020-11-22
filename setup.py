@@ -18,5 +18,4 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     keywords=['alignment', 'duration', 'phoneme', 'speech'],
-    license='MIT',
-    install_requires=['numpy'])
+    license='MIT')
