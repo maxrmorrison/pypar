@@ -138,8 +138,8 @@ class Word:
         while i < len(self) - 1:
 
             # Get start and end times between phonemes
-            start = self[i].end
-            end = self[i + 1].start
+            start = self[i].end()
+            end = self[i + 1].start()
 
             # Patch gap with silence
             if end - start > 1e-4:

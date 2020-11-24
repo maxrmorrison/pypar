@@ -283,7 +283,7 @@ class Alignment:
         for word in self.words:
 
             # Convert phonemes to list
-            phonemes = [[str(phoneme), phoneme.start, phoneme.end]
+            phonemes = [[str(phoneme), phoneme.start(), phoneme.end()]
                         for phoneme in word]
 
             # Convert word to dict format
