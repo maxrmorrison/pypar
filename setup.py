@@ -17,5 +17,6 @@ setup(
     packages=['pypar'],
     long_description=long_description,
     long_description_content_type='text/markdown',
-    keywords=['alignment', 'duration', 'phoneme', 'speech'],
+    keywords=['align', 'duration', 'phoneme', 'speech'],
+    classifiers=['License :: OSI Approved :: MIT License'],
     license='MIT')

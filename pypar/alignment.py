@@ -1,5 +1,6 @@
 import copy
 import json
+from pathlib import Path
 
 import pypar
 
@@ -13,7 +14,7 @@ class Alignment:
     """Phoneme alignment
 
     Arguments
-        alignment : string, list[pypar.Word], or dict
+        alignment : string, Path, list[pypar.Word], or dict
             The filename, list of words, or json dict of the alignment
 
     Parameters
@@ -22,10 +23,15 @@ class Alignment:
     """
 
     def __init__(self, alignment):
-        if isinstance(alignment, str):
+        if isinstance(alignment, str) :
 
             # Load alignment from disk
             self.words = self.load(alignment)
+
+        elif isinstance(alignment, Path):
+
+            # Cast and load
+            self.words = self.load(str(alignment))
 
         elif isinstance(alignment, list):
             self.words = alignment
@@ -238,6 +244,35 @@ class Alignment:
         """
         return self.words[0].start()
 
+    def update(self, idx=0, durations=None, start=None):
+        """Update alignment starting from phoneme index idx
+
+        Arguments
+            idx : int
+                The index of the first phoneme whose duration is being updated
+            durations : list[float] or None
+                The new phoneme durations, starting from idx
+            start : float or None
+                The start time of the alignment
+        """
+        # If durations are not given, just update phoneme start and end times
+        durations = [] if durations is None else durations
+
+        # Word start time (in seconds) and phoneme start index
+        start = self.start() if start is None else start
+        start_phoneme = 0
+
+        # Update each word
+        for word in self:
+            end_phoneme = start_phoneme + len(word)
+
+            # Update phoneme alignment of this word
+            word = self.update_word(
+                word, idx, durations, start, start_phoneme, end_phoneme)
+
+            start += word.duration()
+            start_phoneme += len(word)
+
     def word_at_time(self, time):
         """Retrieve the word spoken at specified time
 
@@ -371,35 +406,6 @@ class Alignment:
                 words.append(pypar.Word(pypar.SILENCE, phonemes))
 
         return words
-
-    def update(self, idx=0, durations=None, start=None):
-        """Update alignment starting from phoneme index idx
-
-        Arguments
-            idx : int
-                The index of the first phoneme whose duration is being updated
-            durations : list[float] or None
-                The new phoneme durations, starting from idx
-            start : float or None
-                The start time of the alignment
-        """
-        # If durations are not given, just update phoneme start and end times
-        durations = [] if durations is None else durations
-
-        # Word start time (in seconds) and phoneme start index
-        start = self.start() if start is None else start
-        start_phoneme = 0
-
-        # Update each word
-        for word in self:
-            end_phoneme = start_phoneme + len(word)
-
-            # Update phoneme alignment of this word
-            word = self.update_word(
-                word, idx, durations, start, start_phoneme, end_phoneme)
-
-            start += word.duration()
-            start_phoneme += len(word)
 
     def update_word(self,
                     word,
