@@ -10,14 +10,14 @@ resulting alignment of a forced aligner such as
 [`pyfoal`](https://github.com/maxrmorrison/pyfoal).
 
 
-### Installation
+## Installation
 
 `pip install pypar`
 
 
-### Usage
+## Usage
 
-##### Creating an alignment
+### Creating an alignment
 
 If you already have the alignment saved to a `json` or `mlf` file, pass the
 name of the file.
@@ -54,7 +54,7 @@ alignment_with_repeat = first_two_words + alignment
 ```
 
 
-##### Accessing words and phonemes
+### Accessing words and phonemes
 
 To retrieve a list of words in the alignment, use `alignment.words()`.
 To retrieve a list of phonemes, use `alignment.phonemes()`. The `Alignment`,
@@ -83,7 +83,7 @@ the audio sampling rate and hopsize (in samples) to `alignment.word_bounds` or
 `alignment.phoneme_bounds`.
 
 
-##### Saving an alignment
+### Saving an alignment
 
 To save an alignment to disk, use `alignment.save(file)`, where `file` is the
 desired filename. `pypar` currently supports saving as a `json` file.
