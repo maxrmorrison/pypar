@@ -87,3 +87,13 @@ the audio sampling rate and hopsize (in samples) to `alignment.word_bounds` or
 
 To save an alignment to disk, use `alignment.save(file)`, where `file` is the
 desired filename. `pypar` currently supports saving as a `json` file.
+
+
+## Tests
+
+Tests can be run as follows.
+
+```
+pip install pytest
+pytest
+```
