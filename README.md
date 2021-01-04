@@ -61,7 +61,19 @@ To retrieve a list of phonemes, use `alignment.phonemes()`. The `Alignment`,
 `Word`, and `Phoneme` objects all define `.start()`, `.end()`, and
 `.duration()` methods, which return the start time, end time, and duration,
 respectively. All times are given in units of seconds. These objects also
-define equality checks via `==` and casting to string with `str()`.
+define equality checks via `==`, casting to string with `str()`, and iteration
+as follows.
+
+```python
+# Iterate over words
+for word in alignment:
+
+    # Iterate over phonemes in word
+    for phoneme in word:
+
+        # Do something with phoneme
+        pass
+```
 
 To access a word or phoneme at a specific time, pass the time in seconds to
 `alignment.word_at_time` or `alignment.phoneme_at_time`.
