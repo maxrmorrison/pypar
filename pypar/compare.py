@@ -6,7 +6,7 @@ import numpy as np
 ###############################################################################
 
 
-def per_frame_rate(alignment_a, alignment_b, hopsize):
+def per_frame_rate(alignment_a, alignment_b, sample_rate, hopsize):
     """Compute the per-frame rate difference between alignments A and B
 
     Arguments
@@ -14,8 +14,10 @@ def per_frame_rate(alignment_a, alignment_b, hopsize):
             The source alignment
         alignment_b : Alignment
             The target alignment
-        hopsize : float
-            The hopsize in seconds
+        sample_rate : int
+            The audio sampling rate
+        hopsize : int
+            The number of samples between successive frames
 
     Returns
         rates : list[float]
@@ -27,7 +29,7 @@ def per_frame_rate(alignment_a, alignment_b, hopsize):
     rate_map = dict(zip(dict_keys, rates_per_phoneme))
 
     # Query the dict every hopsize seconds
-    frames = 1 + int(alignment_a.end() / hopsize + 1e-4)
+    frames = 1 + int(alignment_a.end() * sample_rate / hopsize)
     return [rate_map[phoneme_tuple(alignment_a.phoneme_at_time(t))]
             for t in np.linspace(0., alignment_a.end(), frames)]
 

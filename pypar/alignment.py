@@ -26,21 +26,21 @@ class Alignment:
         if isinstance(alignment, str) :
 
             # Load alignment from disk
-            self.words = self.load(alignment)
+            self._words = self.load(alignment)
 
         elif isinstance(alignment, Path):
 
             # Cast and load
-            self.words = self.load(str(alignment))
+            self._words = self.load(str(alignment))
 
         elif isinstance(alignment, list):
-            self.words = alignment
+            self._words = alignment
 
             # Require first word to start at 0 seconds
             self.update(start=0.)
 
         elif isinstance(alignment, dict):
-            self.words = self.parse_json(alignment)
+            self._words = self.parse_json(alignment)
 
         # Ensure there are no gaps (by filling with silence)
         self.validate()
@@ -63,7 +63,7 @@ class Alignment:
         other.update(start=self.end())
 
         # Concatenate word lists
-        return Alignment(self.words + other.words)
+        return Alignment(self._words + other.words)
 
     def __eq__(self, other):
         """Equality comparison for alignments
@@ -94,10 +94,10 @@ class Alignment:
         if isinstance(idx, slice):
 
             # Slice into word list
-            return Alignment(copy.deepcopy(self.words[idx]))
+            return Alignment(copy.deepcopy(self._words[idx]))
 
         # Retrieve a single word
-        return self.words[idx]
+        return self._words[idx]
 
     def __len__(self):
         """Retrieve the number of words
@@ -106,7 +106,7 @@ class Alignment:
             length : int
                 The number of words in the alignment
         """
-        return len(self.words)
+        return len(self._words)
 
     def __str__(self):
         """Retrieve the text
@@ -115,7 +115,7 @@ class Alignment:
             words : string
                 The words in the alignment
         """
-        return ' '.join([str(word) for word in self.words
+        return ' '.join([str(word) for word in self._words
                          if str(word) != pypar.SILENCE])
 
     def duration(self):
@@ -134,7 +134,7 @@ class Alignment:
             end : float
                 The end time in seconds
         """
-        return self.words[-1].end()
+        return self._words[-1].end()
 
     def find(self, words):
         """Find the words in the alignment
@@ -150,10 +150,10 @@ class Alignment:
         # Split at spaces
         words = words.split(' ')
 
-        for i in range(0, len(self.words) - len(words) + 1):
+        for i in range(0, len(self._words) - len(words) + 1):
 
             # Get text
-            text = str(self.words[i]).lower()
+            text = str(self._words[i]).lower()
 
             # Skip silence
             if text == pypar.SILENCE:
@@ -169,16 +169,16 @@ class Alignment:
                 # Increment words
                 j += 1
                 k += 1
-                text = str(self.words[i + k]).lower()
+                text = str(self._words[i + k]).lower()
 
                 # skip silence
                 while text == pypar.SILENCE:
                     k += 1
-                    text = str(self.words[i + k]).lower()
+                    text = str(self._words[i + k]).lower()
 
             # Found match; return indices
             if j == len(words):
-                return i, i + k
+                return i
 
         # No match
         return -1
@@ -206,20 +206,20 @@ class Alignment:
         word = self.word_at_time(time)
         return word.phoneme_at_time(time) if word else None
 
-    def phoneme_bounds(self, sample_rate, hopsize):
+    def phoneme_bounds(self, sample_rate, hopsize=1):
         """Retrieve the start and end frame index of each phoneme
 
         Arguments
             sample_rate : int
                 The audio sampling rate
-            hopsize : float
-                The size of the analysis window in samples
+            hopsize : int
+                The number of samples between successive frames
 
         Returns
             bounds : list[tuple[int, int]]
                 The start and end indices of the phonemes
         """
-        bounds = [(p.start, p.end) for p in self.phonemes()
+        bounds = [(p.start(), p.end()) for p in self.phonemes()
                   if str(p) != pypar.SILENCE]
         return [(int(a * sample_rate / hopsize),
                  int(b * sample_rate / hopsize))
@@ -242,7 +242,7 @@ class Alignment:
             start : float
                 The start time in seconds
         """
-        return self.words[0].start()
+        return self._words[0].start()
 
     def update(self, idx=0, durations=None, start=None):
         """Update alignment starting from phoneme index idx
@@ -273,6 +273,10 @@ class Alignment:
             start += word.duration()
             start_phoneme += len(word)
 
+    def words(self):
+        """Retrieve the words in the alignment"""
+        return self._words
+
     def word_at_time(self, time):
         """Retrieve the word spoken at specified time
 
@@ -289,14 +293,14 @@ class Alignment:
                 return word
         return None
 
-    def word_bounds(self, sample_rate, hopsize):
+    def word_bounds(self, sample_rate, hopsize=1):
         """Retrieve the start and end frame index of each word
 
         Arguments
             sample_rate : int
                 The audio sampling rate
-            hopsize : float
-                The size of the analysis window in samples
+            hopsize : int
+                The number of samples between successive frames
 
         Returns
             bounds : list[tuple[int, int]]
@@ -315,7 +319,7 @@ class Alignment:
     def json(self):
         """Convert to json format"""
         words = []
-        for word in self.words:
+        for word in self._words:
 
             # Convert phonemes to list
             phonemes = [[str(phoneme), phoneme.start(), phoneme.end()]
@@ -470,7 +474,7 @@ class Alignment:
             if end - start > 1e-3:
                 word = pypar.Word(pypar.SILENCE,
                                   [pypar.Phoneme(pypar.SILENCE, start, end)])
-                self.words.insert(i, word)
+                self._words.insert(i, word)
                 i += 1
 
             i += 1
