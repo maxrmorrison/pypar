@@ -1,5 +1,9 @@
 # Python phoneme alignment representation
 
+[![PyPI](https://img.shields.io/pypi/v/torchcrepe.svg)](https://pypi.python.org/pypi/pypar)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+<!-- [![Downloads](https://pepy.tech/badge/torchcrepe)](https://pepy.tech/project/pypar) -->
+
 Phoneme alignment representation for speech tasks. This repo does not perform
 forced phoneme alignment, but provides an interface for working with the
 resulting alignment of a forced aligner such as
@@ -22,12 +26,20 @@ name of the file.
 alignment = pypar.Alignment(file)
 ```
 
-Alignments can be created manually from `Word` and `Phoneme` objects.
+Alignments can be created manually from `Word` and `Phoneme` objects. Start amd
+end times are given in seconds.
 
 ```python
-phonemes = [pypar.Phoneme('DH', 0., .03), pypar.Phoneme('AH0', .03, .06)]
-words = [pypar.Word('THE', phonemes)]
-alignment = pypar.Alignment(words)
+# Create a word from phonemes
+word = pypar.Word(
+    'THE',
+    [pypar.Phoneme('DH', 0., .03), pypar.Phoneme('AH0', .03, .06)])
+
+# Create a silence
+silence = pypar.Word(pypar.SILENCE, pypar.Phoneme(pypar.SILENCE, .06, .16))
+
+# Make an alignment
+alignment = pypar.Alignment([word, silence])
 ```
 
 You can create a new alignment from existing alignments via slicing and
@@ -51,11 +63,12 @@ To retrieve a list of phonemes, use `alignment.phonemes()`. The `Alignment`,
 respectively. All times are given in units of seconds. These objects also
 define equality checks via `==` and casting to string with `str()`.
 
-To access a word or phoneme at a specific time, use `alignment.word_at_time`
-or `alignment.phoneme_at_time`.
+To access a word or phoneme at a specific time, pass the time in seconds to
+`alignment.word_at_time` or `alignment.phoneme_at_time`.
 
-To retrieve the frame indices of the start and end of a word or phoneme, use
-`alignment.word_bounds` or `alignment.phoneme_bounds`.
+To retrieve the frame indices of the start and end of a word or phoneme, pass
+the audio sampling rate and hopsize (in samples) to `alignment.word_bounds` or
+`alignment.phoneme_bounds`.
 
 
 ##### Saving an alignment
