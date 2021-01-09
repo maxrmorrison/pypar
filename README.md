@@ -26,7 +26,7 @@ name of the file.
 alignment = pypar.Alignment(file)
 ```
 
-Alignments can be created manually from `Word` and `Phoneme` objects. Start amd
+Alignments can be created manually from `Word` and `Phoneme` objects. Start and
 end times are given in seconds.
 
 ```python
