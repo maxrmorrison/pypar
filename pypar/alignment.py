@@ -2,6 +2,8 @@ import copy
 import json
 from pathlib import Path
 
+import textgrid
+
 import pypar
 
 
@@ -23,7 +25,7 @@ class Alignment:
     """
 
     def __init__(self, alignment):
-        if isinstance(alignment, str) :
+        if isinstance(alignment, str):
 
             # Load alignment from disk
             self._words = self.load(alignment)
@@ -232,8 +234,16 @@ class Alignment:
             filename : string
                 The location on disk to save the phoneme alignment json
         """
-        with open(filename, 'w', encoding='utf-8') as file:
-            json.dump(self.json(), file, ensure_ascii=False, indent=4)
+        if isinstance(filename, Path):
+            filename = str(filename)
+        extension = filename.split('.')[-1]
+        if extension == 'json':
+            self.save_json(filename)
+        elif extension.lower() == 'textgrid':
+            self.save_textgrid(filename)
+        else:
+            raise ValueError(
+                f'No save routine for files with extension {extension}')
 
     def start(self):
         """Retrieve the start time of the alignment in seconds
@@ -347,6 +357,8 @@ class Alignment:
             return self.load_mlf(file)
         if extension == 'json':
             return self.load_json(file)
+        if extension.lower() == 'textgrid':
+            return self.load_textgrid(file)
         raise ValueError(
             f'No alignment representation for file extension {extension}')
 
@@ -391,6 +403,35 @@ class Alignment:
 
         return words
 
+    def load_textgrid(self, filename):
+        """Load from textgrid file"""
+        # Load file
+        grid = textgrid.TextGrid.fromFile(filename)
+
+        # Get phoneme and word representations
+        phon_tier, word_tier = grid[0], grid[1]
+
+        # Iterate over words
+        words = []
+        phon_idx = 0
+        for word in word_tier:
+
+            # Get all phonemes for this word
+            phonemes = []
+            while phon_idx < len(phon_tier) and \
+                  phon_tier[phon_idx].maxTime <= word.maxTime:
+                phoneme = phon_tier[phon_idx]
+                mark = phoneme.mark if phoneme.mark != 'sil' else pypar.SILENCE
+                phonemes.append(pypar.Phoneme(mark,
+                                              phoneme.minTime,
+                                              phoneme.maxTime))
+                phon_idx += 1
+
+            # Add finished word
+            words.append(pypar.Word(word.mark, phonemes))
+
+        return words
+
     def parse_json(self, alignment):
         """Construct word list from json representation"""
         words = []
@@ -410,6 +451,31 @@ class Alignment:
                 words.append(pypar.Word(pypar.SILENCE, phonemes))
 
         return words
+
+    def save_json(self, filename):
+        """Save alignment as json"""
+        with open(filename, 'w', encoding='utf-8') as file:
+            json.dump(self.json(), file, ensure_ascii=False, indent=4)
+
+    def save_textgrid(self, filename):
+        """Save alignment as textgrid"""
+        # Construct phoneme tier
+        phon_tier = textgrid.IntervalTier('phone', self.start(), self.end())
+        for phoneme in self.phonemes():
+            mark = 'sil' if str(phoneme) == pypar.SILENCE else str(phoneme)
+            phon_tier.add(phoneme.start(), phoneme.end(), mark)
+
+        # Construct word tier
+        word_tier = textgrid.IntervalTier('word', self.start(), self.end())
+        for word in self:
+            word_tier.add(word.start(), word.end(), str(word))
+
+        # Construct textgrid
+        grid = textgrid.TextGrid(Path(filename).stem, self.start(), self.end())
+        grid.extend([phon_tier, word_tier])
+
+        # Save
+        grid.write(filename)
 
     def update_word(self,
                     word,
@@ -472,10 +538,15 @@ class Alignment:
 
             # Patch gap with silence
             if end - start > 1e-3:
-                word = pypar.Word(pypar.SILENCE,
-                                  [pypar.Phoneme(pypar.SILENCE, start, end)])
-                self._words.insert(i, word)
-                i += 1
+
+                # Extend existing silence if possible
+                if str(self[i]) == pypar.SILENCE:
+                    self[i][0]._start = start
+                else:
+                    word = pypar.Word(pypar.SILENCE,
+                                    [pypar.Phoneme(pypar.SILENCE, start, end)])
+                    self._words.insert(i, word)
+                    i += 1
 
             i += 1
             start = self[i].end()

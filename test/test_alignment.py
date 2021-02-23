@@ -9,14 +9,6 @@ import pypar
 ###############################################################################
 
 
-def test_string(text, alignment):
-    """Test the alignment string representation"""
-    text = text.replace('"', '')
-    text = text.replace('?', '')
-    text = text.replace(',', '')
-    assert text.upper() == str(alignment)
-
-
 def test_find(alignment):
     """Test finding words in the alignment"""
     assert alignment.find('the mouse') == 7
@@ -42,9 +34,23 @@ def test_phoneme_bounds(alignment):
 def test_save(alignment):
     """Test saving and reloading alignment"""
     with tempfile.TemporaryDirectory() as directory:
+        # Test json
         file = Path(directory) / 'alignment.json'
         alignment.save(file)
         assert alignment == pypar.Alignment(file)
+
+        # Test textgrid
+        file = Path(directory) / 'alignment.TextGrid'
+        alignment.save(file)
+        assert alignment == pypar.Alignment(file)
+
+
+def test_string(text, alignment):
+    """Test the alignment string representation"""
+    text = text.replace('"', '')
+    text = text.replace('?', '')
+    text = text.replace(',', '')
+    assert text.upper() == str(alignment)
 
 
 def test_word_at_time(alignment):

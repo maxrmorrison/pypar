@@ -13,7 +13,7 @@ setup(
     author='Max Morrison',
     author_email='maxrmorrison@gmail.com',
     url='https://github.com/maxrmorrison/pypar',
-    install_requires=['numpy'],
+    install_requires=['numpy', 'textgrid'],
     packages=['pypar'],
     long_description=long_description,
     long_description_content_type='text/markdown',

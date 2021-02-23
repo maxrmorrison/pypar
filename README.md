@@ -19,8 +19,8 @@ resulting alignment of a forced aligner such as
 
 ### Creating an alignment
 
-If you already have the alignment saved to a `json` or `mlf` file, pass the
-name of the file.
+If you already have the alignment saved to a `json`, `mlf`, or `TextGrid`
+file, pass the name of the file.
 
 ```python
 alignment = pypar.Alignment(file)
@@ -86,7 +86,8 @@ the audio sampling rate and hopsize (in samples) to `alignment.word_bounds` or
 ### Saving an alignment
 
 To save an alignment to disk, use `alignment.save(file)`, where `file` is the
-desired filename. `pypar` currently supports saving as a `json` file.
+desired filename. `pypar` currently supports saving as a `json` or `TextGrid`
+file.
 
 
 ## Tests
