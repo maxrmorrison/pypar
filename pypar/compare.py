@@ -29,7 +29,7 @@ def per_frame_rate(alignment_a, alignment_b, sample_rate, hopsize):
     rate_map = dict(zip(dict_keys, rates_per_phoneme))
 
     # Query the dict every hopsize seconds
-    frames = 1 + int(alignment_a.end() * sample_rate / hopsize)
+    frames = 1 + int(round(alignment_a.end(), 6) * sample_rate / hopsize)
     return [rate_map[phoneme_tuple(alignment_a.phoneme_at_time(t))]
             for t in np.linspace(0., alignment_a.end(), frames)]
 
@@ -47,6 +47,10 @@ def per_phoneme_rate(alignment_a, alignment_b):
         rates : list[float]
             The phoneme-wise relative speed of alignment B to alignment A
     """
+    # Error check alignments
+    if len(alignment_a.phonemes()) != len(alignment_b.phonemes()):
+        raise ValueError('Alignments must have same number of phonemes')
+
     iterator = zip(alignment_a.phonemes(), alignment_b.phonemes())
     return [target.duration() / source.duration()
             for source, target in iterator]
