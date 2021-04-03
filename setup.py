@@ -8,7 +8,7 @@ with open('README.md') as file:
 
 setup(
     name='pypar',
-    version='0.0.1',
+    version='0.0.2',
     description='Python phoneme alignment representation',
     author='Max Morrison',
     author_email='maxrmorrison@gmail.com',
