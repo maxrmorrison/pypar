@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/pypar.svg)](https://pypi.python.org/pypi/pypar)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-<!-- [![Downloads](https://pepy.tech/badge/torchcrepe)](https://pepy.tech/project/pypar) -->
+[![Downloads](https://pepy.tech/badge/pypar)](https://pepy.tech/project/pypar)
 
 Phoneme alignment representation for speech tasks. This repo does not perform
 forced phoneme alignment, but provides an interface for working with the
