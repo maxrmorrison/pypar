@@ -351,7 +351,7 @@ class Alignment:
         return len(line) in [4, 5]
 
     def load(self, file):
-        """Load the mlf file and format into words"""
+        """Load alignment from file"""
         extension = file.split('.')[-1]
         if extension == 'mlf':
             return self.load_mlf(file)
@@ -363,7 +363,7 @@ class Alignment:
             f'No alignment representation for file extension {extension}')
 
     def load_json(self, filename):
-        """Load from json file"""
+        """Load alignment from json file"""
         # Load from json file
         with open(filename) as file:
             return self.parse_json(json.load(file))
@@ -409,7 +409,14 @@ class Alignment:
         grid = textgrid.TextGrid.fromFile(filename)
 
         # Get phoneme and word representations
-        phon_tier, word_tier = grid[0], grid[1]
+        if 'word' in grid[0].name and 'phon' in grid[1].name:
+            word_tier, phon_tier = grid[0], grid[1]
+        elif 'phon' in grid[0].name and 'word' in grid[1].name:
+            phon_tier, word_tier = grid[0], grid[1]
+        else:
+            raise ValueError(
+                'Cannot determine which TextGrid tiers ' +
+                'correspond to words and phonemes')
 
         # Iterate over words
         words = []
