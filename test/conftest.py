@@ -22,6 +22,11 @@ def text():
     with open(path('test.txt')) as file:
         return file.read()
 
+@pytest.fixture(scope='session')
+def float_alignment():
+    """Retrieve special alignment for float testing"""
+    return pypar.Alignment(path('float.json'))
+
 
 ###############################################################################
 # Utilities
