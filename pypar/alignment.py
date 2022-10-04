@@ -280,7 +280,7 @@ class Alignment:
             word = self.update_word(
                 word, idx, durations, start, start_phoneme, end_phoneme)
 
-            start += word.duration()
+            start = word.end()
             start_phoneme += len(word)
 
     def words(self):
