@@ -31,6 +31,11 @@ def test_phoneme_bounds(alignment):
     assert bounds[4] == (75, 86)
 
 
+def test_load(textgrid):
+    """Test textgrid loading"""
+    pass
+
+
 def test_save(alignment):
     """Test saving and reloading alignment"""
     with tempfile.TemporaryDirectory() as directory:
