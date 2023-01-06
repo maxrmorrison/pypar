@@ -303,7 +303,7 @@ class Alignment:
                 return word
         return None
 
-    def word_bounds(self, sample_rate, hopsize=1):
+    def word_bounds(self, sample_rate, hopsize=1, silences=False):
         """Retrieve the start and end frame index of each word
 
         Arguments
@@ -311,13 +311,16 @@ class Alignment:
                 The audio sampling rate
             hopsize : int
                 The number of samples between successive frames
+            silences : bool
+                Whether to include silences as words
 
         Returns
             bounds : list[tuple[int, int]]
                 The start and end indices of the words
         """
-        bounds = [(word.start(), word.end()) for word in self
-                  if str(word) != pypar.SILENCE]
+        words = [
+            word for word in self if str(word) != pypar.SILENCE or silences]
+        bounds = [(word.start(), word.end()) for word in words]
         return [(int(a * sample_rate / hopsize),
                  int(b * sample_rate / hopsize))
                 for a, b in bounds]
