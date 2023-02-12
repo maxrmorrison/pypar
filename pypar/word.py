@@ -123,14 +123,14 @@ class Word:
         """
         # Use current durations if None provided
         if durations is None:
-            durations = [phoneme.duration for phoneme in self.phonemes]
+            durations = [phoneme.duration() for phoneme in self.phonemes]
 
         # Update phonemes
         phoneme_start = start
         for phoneme, duration in zip(self.phonemes, durations):
             phoneme._start = phoneme_start
             phoneme._end = phoneme_start + duration
-            phoneme_start += duration
+            phoneme_start = phoneme._end
 
     def validate(self):
         """Ensures that adjacent start/end times are valid by adding silence"""

@@ -280,7 +280,7 @@ class Alignment:
             word = self.update_word(
                 word, idx, durations, start, start_phoneme, end_phoneme)
 
-            start += word.duration()
+            start = word.end()
             start_phoneme += len(word)
 
     def words(self):
@@ -303,7 +303,7 @@ class Alignment:
                 return word
         return None
 
-    def word_bounds(self, sample_rate, hopsize=1):
+    def word_bounds(self, sample_rate, hopsize=1, silences=False):
         """Retrieve the start and end frame index of each word
 
         Arguments
@@ -311,13 +311,16 @@ class Alignment:
                 The audio sampling rate
             hopsize : int
                 The number of samples between successive frames
+            silences : bool
+                Whether to include silences as words
 
         Returns
             bounds : list[tuple[int, int]]
                 The start and end indices of the words
         """
-        bounds = [(word.start(), word.end()) for word in self
-                  if str(word) != pypar.SILENCE]
+        words = [
+            word for word in self if str(word) != pypar.SILENCE or silences]
+        bounds = [(word.start(), word.end()) for word in words]
         return [(int(a * sample_rate / hopsize),
                  int(b * sample_rate / hopsize))
                 for a, b in bounds]
@@ -351,7 +354,7 @@ class Alignment:
         return len(line) in [4, 5]
 
     def load(self, file):
-        """Load the mlf file and format into words"""
+        """Load alignment from file"""
         extension = file.split('.')[-1]
         if extension == 'mlf':
             return self.load_mlf(file)
@@ -363,7 +366,7 @@ class Alignment:
             f'No alignment representation for file extension {extension}')
 
     def load_json(self, filename):
-        """Load from json file"""
+        """Load alignment from json file"""
         # Load from json file
         with open(filename) as file:
             return self.parse_json(json.load(file))
@@ -409,7 +412,14 @@ class Alignment:
         grid = textgrid.TextGrid.fromFile(filename)
 
         # Get phoneme and word representations
-        phon_tier, word_tier = grid[0], grid[1]
+        if 'word' in grid[0].name and 'phon' in grid[1].name:
+            word_tier, phon_tier = grid[0], grid[1]
+        elif 'phon' in grid[0].name and 'word' in grid[1].name:
+            phon_tier, word_tier = grid[0], grid[1]
+        else:
+            raise ValueError(
+                'Cannot determine which TextGrid tiers ' +
+                'correspond to words and phonemes')
 
         # Iterate over words
         words = []

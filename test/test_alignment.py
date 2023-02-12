@@ -31,6 +31,11 @@ def test_phoneme_bounds(alignment):
     assert bounds[4] == (75, 86)
 
 
+def test_load(textgrid):
+    """Test textgrid loading"""
+    pass
+
+
 def test_save(alignment):
     """Test saving and reloading alignment"""
     with tempfile.TemporaryDirectory() as directory:
@@ -66,3 +71,11 @@ def test_word_bounds(alignment):
     bounds = alignment.word_bounds(10000, 100)
     assert bounds[0] == (27, 44)
     assert bounds[3] == (93, 149)
+
+
+def test_float_update(float_alignment):
+    for i in range(1, len(float_alignment)):
+        assert float_alignment[i].start() >= float_alignment[i-1].end()
+    float_alignment.update(start=0.)
+    for i in range(1, len(float_alignment)):
+        assert float_alignment[i].start() >= float_alignment[i-1].end()
