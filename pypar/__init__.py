@@ -3,4 +3,4 @@ from .phoneme import Phoneme
 from .word import Word
 from . import compare
 
-SILENCE = 'sp'
+SILENCE = '<silent>'
