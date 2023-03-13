@@ -428,13 +428,15 @@ class Alignment:
 
             # Get all phonemes for this word
             phonemes = []
-            while phon_idx < len(phon_tier) and \
-                  phon_tier[phon_idx].maxTime <= word.maxTime:
-                phoneme = phon_tier[phon_idx]
-                mark = phoneme.mark if phoneme.mark != 'sil' else pypar.SILENCE
-                phonemes.append(pypar.Phoneme(mark,
-                                              phoneme.minTime,
-                                              phoneme.maxTime))
+            while (
+                phon_idx < len(phon_tier) and
+                phon_tier[phon_idx].maxTime <= word.maxTime
+            ):
+                phonemes.append(
+                    pypar.Phoneme(
+                        phon_tier[phon_idx].mark,
+                        phon_tier[phon_idx].minTime,
+                        phon_tier[phon_idx].maxTime))
                 phon_idx += 1
 
             # Add finished word
@@ -472,7 +474,7 @@ class Alignment:
         # Construct phoneme tier
         phon_tier = textgrid.IntervalTier('phone', self.start(), self.end())
         for phoneme in self.phonemes():
-            mark = 'sil' if str(phoneme) == pypar.SILENCE else str(phoneme)
+            mark = str(phoneme)
             phon_tier.add(phoneme.start(), phoneme.end(), mark)
 
         # Construct word tier
