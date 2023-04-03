@@ -1,12 +1,12 @@
 {
     "words": [
         {
-            "alignedWord": "sp",
+            "alignedWord": "<silent>",
             "start": 0.0,
             "end": 0.0245,
             "phonemes": [
                 [
-                    "sp",
+                    "<silent>",
                     0.0,
                     0.0245
                 ]
@@ -101,12 +101,12 @@
             ]
         },
         {
-            "alignedWord": "sp",
+            "alignedWord": "<silent>",
             "start": 0.91825,
             "end": 1.13075,
             "phonemes": [
                 [
-                    "sp",
+                    "<silent>",
                     0.91825,
                     1.13075
                 ]
@@ -255,12 +255,12 @@
             ]
         },
         {
-            "alignedWord": "sp",
+            "alignedWord": "<silent>",
             "start": 2.80575,
             "end": 2.84325,
             "phonemes": [
                 [
-                    "sp",
+                    "<silent>",
                     2.80575,
                     2.84325
                 ]

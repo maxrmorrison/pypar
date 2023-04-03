@@ -1,12 +1,12 @@
 {
     "words": [
         {
-            "alignedWord": "sp",
+            "alignedWord": "<silent>",
             "start": 0.0,
             "end": 0.27188208616780046,
             "phonemes": [
                 [
-                    "sp",
+                    "<silent>",
                     0.0,
                     0.27188208616780046
                 ]
@@ -106,12 +106,12 @@
             ]
         },
         {
-            "alignedWord": "sp",
+            "alignedWord": "<silent>",
             "start": 1.4990929705215414,
             "end": 1.5888888888888886,
             "phonemes": [
                 [
-                    "sp",
+                    "<silent>",
                     1.4990929705215414,
                     1.5888888888888886
                 ]
@@ -307,12 +307,12 @@
             ]
         },
         {
-            "alignedWord": "sp",
+            "alignedWord": "<silent>",
             "start": 3.8736961451247143,
             "end": 4.093197278911562,
             "phonemes": [
                 [
-                    "sp",
+                    "<silent>",
                     3.8736961451247143,
                     4.093197278911562
                 ]
@@ -385,12 +385,12 @@
             ]
         },
         {
-            "alignedWord": "sp",
+            "alignedWord": "<silent>",
             "start": 5.0011337868480705,
             "end": 5.429931972789116,
             "phonemes": [
                 [
-                    "sp",
+                    "<silent>",
                     5.0011337868480705,
                     5.429931972789116
                 ]
