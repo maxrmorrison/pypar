@@ -8,12 +8,12 @@ with open('README.md') as file:
 
 setup(
     name='pypar',
-    version='0.0.3',
+    version='0.0.4',
     description='Python phoneme alignment representation',
     author='Max Morrison',
     author_email='maxrmorrison@gmail.com',
     url='https://github.com/maxrmorrison/pypar',
-    install_requires=['numpy', 'textgrid'],
+    install_requires=['numpy'],
     packages=['pypar'],
     long_description=long_description,
     long_description_content_type='text/markdown',

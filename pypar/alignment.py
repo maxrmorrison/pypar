@@ -2,8 +2,6 @@ import copy
 import json
 from pathlib import Path
 
-import textgrid
-
 import pypar
 
 
@@ -409,7 +407,7 @@ class Alignment:
     def load_textgrid(self, filename):
         """Load from textgrid file"""
         # Load file
-        grid = textgrid.TextGrid.fromFile(filename)
+        grid = pypar.textgrid.TextGrid.fromFile(filename)
 
         # Get phoneme and word representations
         if 'word' in grid[0].name and 'phon' in grid[1].name:
@@ -428,13 +426,15 @@ class Alignment:
 
             # Get all phonemes for this word
             phonemes = []
-            while phon_idx < len(phon_tier) and \
-                  phon_tier[phon_idx].maxTime <= word.maxTime:
-                phoneme = phon_tier[phon_idx]
-                mark = phoneme.mark if phoneme.mark != 'sil' else pypar.SILENCE
-                phonemes.append(pypar.Phoneme(mark,
-                                              phoneme.minTime,
-                                              phoneme.maxTime))
+            while (
+                phon_idx < len(phon_tier) and
+                phon_tier[phon_idx].maxTime <= word.maxTime
+            ):
+                phonemes.append(
+                    pypar.Phoneme(
+                        phon_tier[phon_idx].mark,
+                        phon_tier[phon_idx].minTime,
+                        phon_tier[phon_idx].maxTime))
                 phon_idx += 1
 
             # Add finished word
@@ -470,30 +470,26 @@ class Alignment:
     def save_textgrid(self, filename):
         """Save alignment as textgrid"""
         # Construct phoneme tier
-        phon_tier = textgrid.IntervalTier('phone', self.start(), self.end())
+        phon_tier = pypar.textgrid.IntervalTier('phone')
         for phoneme in self.phonemes():
-            mark = 'sil' if str(phoneme) == pypar.SILENCE else str(phoneme)
-            phon_tier.add(phoneme.start(), phoneme.end(), mark)
+            phon_tier.add(phoneme.start(), phoneme.end(), str(phoneme))
 
         # Construct word tier
-        word_tier = textgrid.IntervalTier('word', self.start(), self.end())
+        word_tier = pypar.textgrid.IntervalTier('word')
         for word in self:
             word_tier.add(word.start(), word.end(), str(word))
 
-        # Construct textgrid
-        grid = textgrid.TextGrid(Path(filename).stem, self.start(), self.end())
-        grid.extend([phon_tier, word_tier])
+        # Save textgrid
+        pypar.textgrid.TextGrid([phon_tier, word_tier]).write(filename)
 
-        # Save
-        grid.write(filename)
-
-    def update_word(self,
-                    word,
-                    idx,
-                    durations,
-                    start,
-                    start_phoneme,
-                    end_phoneme):
+    def update_word(
+        self,
+        word,
+        idx,
+        durations,
+        start,
+        start_phoneme,
+        end_phoneme):
         """Update the phoneme alignment of one word"""
         # All phonemes beyond (and including) idx must be updated
         if end_phoneme > idx:
@@ -553,8 +549,9 @@ class Alignment:
                 if str(self[i]) == pypar.SILENCE:
                     self[i][0]._start = start
                 else:
-                    word = pypar.Word(pypar.SILENCE,
-                                    [pypar.Phoneme(pypar.SILENCE, start, end)])
+                    word = pypar.Word(
+                        pypar.SILENCE,
+                        [pypar.Phoneme(pypar.SILENCE, start, end)])
                     self._words.insert(i, word)
                     i += 1
 
