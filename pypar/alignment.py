@@ -1,6 +1,9 @@
 import copy
 import json
+import math
+import os
 from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Union
 
 import pypar
 
@@ -11,18 +14,18 @@ import pypar
 
 
 class Alignment:
-    """Phoneme alignment
+    """Word and phoneme alignment"""
 
-    Arguments
-        alignment : string, Path, list[pypar.Word], or dict
-            The filename, list of words, or json dict of the alignment
+    def __init__(
+        self,
+        alignment: Union[str, bytes, os.PathLike, List[pypar.Word], dict]
+    ) -> None:
+        """Create alignment
 
-    Parameters
-        words : list[pypar.Word]
-            The words in the alignment
-    """
-
-    def __init__(self, alignment):
+        Arguments
+            alignment
+                The filename, list of words, or json dict of the alignment
+        """
         if isinstance(alignment, str):
 
             # Load alignment from disk
@@ -49,12 +52,11 @@ class Alignment:
         """Add alignments by concatenation
 
         Arguments
-            other : pypar.Alignment
+            other
                 The alignment to compare to
 
         Returns
-            alignment : pypar.Alignment
-                The concatenated alignment
+            The concatenated alignment
         """
         # Don't change original
         other = copy.deepcopy(other)
@@ -65,31 +67,29 @@ class Alignment:
         # Concatenate word lists
         return Alignment(self._words + other.words)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Equality comparison for alignments
 
         Arguments
-            other : pypar.Alignment
+            other
                 The alignment to compare to
 
         Returns
-            equal : bool
-                Whether the alignments are equal
+            Whether the alignments are equal
         """
         return \
             len(self) == len(other) and \
             all(word == other_word for word, other_word in zip(self, other))
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: Union[int, slice]) -> pypar.Word:
         """Retrieve the idxth word
 
         Arguments
-            idx : int or slice
+            idx
                 The index of the word to retrieve
 
         Returns
-            word : pypar.Word
-                The word at index idx
+            The word at index idx
         """
         if isinstance(idx, slice):
 
@@ -99,53 +99,48 @@ class Alignment:
         # Retrieve a single word
         return self._words[idx]
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Retrieve the number of words
 
         Returns
-            length : int
-                The number of words in the alignment
+            The number of words in the alignment
         """
         return len(self._words)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Retrieve the text
 
         Returns
-            words : string
-                The words in the alignment
+            The words in the alignment separated by spaces
         """
         return ' '.join([str(word) for word in self._words
                          if str(word) != pypar.SILENCE])
 
-    def duration(self):
+    def duration(self) -> float:
         """Retrieve the duration of the alignment in seconds
 
         Returns
-            duration : float
-                The duration in seconds
+            The duration in seconds
         """
         return self.end() - self.start()
 
-    def end(self):
+    def end(self) -> float:
         """Retrieve the end time of the alignment in seconds
 
         Returns
-            end : float
-                The end time in seconds
+            The end time in seconds
         """
         return self._words[-1].end()
 
-    def find(self, words):
+    def find(self, words: str) -> int:
         """Find the words in the alignment
 
         Arguments
-            words : string
+            words
                 The words to find
 
         Returns
-            index : int
-                The index of the start of the words or -1 if not found
+            The index of the start of the words or -1 if not found
         """
         # Split at spaces
         words = words.split(' ')
@@ -183,41 +178,65 @@ class Alignment:
         # No match
         return -1
 
-    def phonemes(self):
+    def framewise_phoneme_indices(
+        self,
+        phoneme_map: Dict[str, int],
+        hopsize: float,
+        times: Optional[List[float]] = None
+    ) -> List[int]:
+        """Convert alignment to phoneme indices at regular temporal interval
+
+        Arguments
+            phoneme_map
+                Mapping from phonemes to indices
+            hopsize
+                Temporal interval between frames in seconds
+            times
+                Specified times in seconds to sample phonemes
+        """
+        if times is None:
+            times = [
+                i * hopsize for i in
+                range(math.ceil(self.duration() / hopsize))]
+        phonemes = [self.phoneme_at_time(time) for time in times]
+        return [phoneme_map[str(phoneme)] for phoneme in phonemes]
+
+    def phonemes(self) -> List[pypar.Phoneme]:
         """Retrieve the phonemes in the alignment
 
         Returns
-            phonemes : list[pypar.Phoneme]
-                The phonemes in the alignment
+            The phonemes in the alignment
         """
         return [phoneme for word in self for phoneme in word]
 
-    def phoneme_at_time(self, time):
+    def phoneme_at_time(self, time: float) -> Optional[pypar.Phoneme]:
         """Retrieve the phoneme spoken at specified time
 
         Arguments
-            time : float
+            time
                 Time in seconds
 
         Returns
-            phoneme : pypar.Phoneme or None
-                The phoneme at the given time
+            The phoneme at the given time (or None if time is out of bounds)
         """
         word = self.word_at_time(time)
         return word.phoneme_at_time(time) if word else None
 
-    def phoneme_bounds(self, sample_rate, hopsize=1):
+    def phoneme_bounds(
+        self,
+        sample_rate: int,
+        hopsize: int = 1
+    ) -> List[Tuple[int, int]]:
         """Retrieve the start and end frame index of each phoneme
 
         Arguments
-            sample_rate : int
+            sample_rate
                 The audio sampling rate
-            hopsize : int
+            hopsize
                 The number of samples between successive frames
 
         Returns
-            bounds : list[tuple[int, int]]
-                The start and end indices of the phonemes
+            The start and end indices of the phonemes
         """
         bounds = [(p.start(), p.end()) for p in self.phonemes()
                   if str(p) != pypar.SILENCE]
@@ -225,11 +244,11 @@ class Alignment:
                  int(b * sample_rate / hopsize))
                 for a, b in bounds]
 
-    def save(self, filename):
+    def save(self, filename: Union[str, bytes, os.PathLike]) -> None:
         """Save alignment to json
 
         Arguments
-            filename : string
+            filename
                 The location on disk to save the phoneme alignment json
         """
         if isinstance(filename, Path):
@@ -243,24 +262,28 @@ class Alignment:
             raise ValueError(
                 f'No save routine for files with extension {extension}')
 
-    def start(self):
+    def start(self) -> float:
         """Retrieve the start time of the alignment in seconds
 
         Returns
-            start : float
-                The start time in seconds
+            The start time in seconds
         """
         return self._words[0].start()
 
-    def update(self, idx=0, durations=None, start=None):
+    def update(
+        self,
+        idx: int = 0,
+        durations: Optional[List[float]] = None,
+        start: Optional[float] = None
+    ) -> None:
         """Update alignment starting from phoneme index idx
 
         Arguments
-            idx : int
+            idx
                 The index of the first phoneme whose duration is being updated
-            durations : list[float] or None
+            durations
                 The new phoneme durations, starting from idx
-            start : float or None
+            start
                 The start time of the alignment
         """
         # If durations are not given, just update phoneme start and end times
@@ -281,40 +304,47 @@ class Alignment:
             start = word.end()
             start_phoneme += len(word)
 
-    def words(self):
-        """Retrieve the words in the alignment"""
+    def words(self) -> List[pypar.Word]:
+        """Retrieve the words in the alignment
+
+        Returns
+            The words in the alignment
+        """
         return self._words
 
-    def word_at_time(self, time):
+    def word_at_time(self, time: float) -> Optional[pypar.Word]:
         """Retrieve the word spoken at specified time
 
         Arguments
-            time : float
+            time
                 Time in seconds
 
         Returns
-            word : pypar.Word or None
-                The word spoken at the specified time
+            The word spoken at the specified time
         """
         for word in self:
             if word.start() <= time <= word.end():
                 return word
         return None
 
-    def word_bounds(self, sample_rate, hopsize=1, silences=False):
+    def word_bounds(
+        self,
+        sample_rate: int,
+        hopsize: int = 1,
+        silences: bool = False
+    ) -> List[Tuple[int, int]]:
         """Retrieve the start and end frame index of each word
 
         Arguments
-            sample_rate : int
+            sample_rate
                 The audio sampling rate
-            hopsize : int
+            hopsize
                 The number of samples between successive frames
-            silences : bool
+            silences
                 Whether to include silences as words
 
         Returns
-            bounds : list[tuple[int, int]]
-                The start and end indices of the words
+            The start and end indices of the words
         """
         words = [
             word for word in self if str(word) != pypar.SILENCE or silences]

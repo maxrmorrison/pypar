@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 import pypar
 
 
@@ -7,35 +9,29 @@ import pypar
 
 
 class Word:
-    """Aligned word represenatation
+    """Aligned word represenatation"""
 
-    Arguments
-        word : string
-            The word
-        phonemes : list[pypar.Phoneme]
-            The phonemes in the word
+    def __init__(self, word: str, phonemes: List[pypar.Phoneme]) -> None:
+        """Create word
 
-    Parameters
-        word : string
-            The word
-        phonemes : list[pypar.Phoneme]
-            The phonemes in the word
-    """
-
-    def __init__(self, word, phonemes):
+        Arguments
+            word
+                The word
+            phonemes
+                The phonemes in the word
+        """
         self.word = word
         self.phonemes = phonemes
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Equality comparison for words
 
         Arguments
-            other : pypar.Word
+            other
                 The word to compare to
 
         Returns
-            equal : bool
-                Whether the words are the same
+            Whether the words are the same
         """
         return \
             str(self) == str(other) and \
@@ -43,68 +39,70 @@ class Word:
             all(phoneme == other_phoneme
                 for phoneme, other_phoneme in zip(self, other))
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> pypar.Phoneme:
         """Retrieve the idxth phoneme
 
         Arguments
-            idx : int
+            idx
                 The index of the phoneme to retrieve
 
         Returns
-            phoneme : pypar.Phoneme
-                The phoneme at index idx
+            The phoneme at index idx
         """
         return self.phonemes[idx]
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Retrieve the number of phonemes
 
         Returns
-            length : int
-                The number of phonemes
+            The number of phonemes
         """
         return len(self.phonemes)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Retrieve the word text
 
         Returns
-            word : string
-                The word text
+            The word text
         """
         return self.word
 
-    def duration(self):
+    def duration(self) -> float:
         """Retrieve the word duration in seconds
 
         Returns
-            duration : float
-                The duration in seconds
+            The duration in seconds
         """
         return self.end() - self.start()
 
-    def end(self):
+    def end(self) -> float:
         """Retrieve the end time of the word in seconds
 
         Returns
-            end : float
-                The end time in seconds
+            The end time in seconds
         """
         return self.phonemes[-1].end()
 
-    def phoneme_at_time(self, time):
-        """Retrieve the phoneme at the specified time"""
+    def phoneme_at_time(self, time: float) -> Optional[pypar.Phoneme]:
+        """Retrieve the phoneme at the specified time
+
+        Arguments
+            time
+                Time in seconds
+
+        Returns
+            The phoneme at the given time (or None if time is out of bounds)
+        """
         for phoneme in self.phonemes:
             if phoneme.start() <= time <= phoneme.end():
                 return phoneme
         return None
 
-    def start(self):
+    def start(self) -> float:
         """Retrieve the start time of the word in seconds
 
         Returns
-            start : float
-                The start time in seconds
+            The start time in seconds
         """
         return self.phonemes[0].start()
 
