@@ -251,6 +251,8 @@ class Alignment:
             filename
                 The location on disk to save the phoneme alignment json
         """
+        if os.path.dirname(filename):
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
         if isinstance(filename, Path):
             filename = str(filename)
         extension = filename.split('.')[-1]
